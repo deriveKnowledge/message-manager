@@ -1,9 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%
+	pageContext.setAttribute("APP_PATH", request.getContextPath());
+%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="zh">
 <head>
+<link rel="shortcut icon" href="${APP_PATH}/favicon.ico" />
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="description" content="个人信息管理">
@@ -12,9 +16,8 @@
 	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="format-detection" content="telephone=no">
 <title>个人信息管理系统</title>
-<%
-	pageContext.setAttribute("APP_PATH", request.getContextPath());
-%>
+<link href="${APP_PATH }/static/css/iconfont.css" rel="stylesheet" />
+<link href="${APP_PATH }/static/css/imagesUpload.css" rel="stylesheet" />
 <script src="${APP_PATH }/static/js/jquery.min.js"></script>
 <script src="${APP_PATH }/static/js/bootstrap.min.js"></script>
 <link href="${APP_PATH }/static/css/bootstrap.min.css" rel="stylesheet">
@@ -86,6 +89,7 @@
 	})
 
 </script>
+
 </head>
 
 <body>
@@ -99,6 +103,7 @@
 			</div>
 			<div id="personInfor">
 				<p id="username_show"></p>
+				<p id="userMind_show"></p>
 				<p>
 					<a href="${APP_PATH }/exitLogin" id="exit_login_btn">
 						
@@ -147,7 +152,9 @@
 				<div role="tabpanel" class="tab-pane active" id="thing">
 					<div class="check-div form-inline row">
 						<button class="btn btn-yellow btn-xs" id="add_thing_modal_btn">添加事件</button>
-						<button class="btn btn-yellow btn-xs" id="query_thing_all_btn">查询所有</button>
+						<button class="btn btn-yellow btn-xs" id="query_thing_all_btn">所有事件</button>
+						<button class="btn btn-yellow btn-xs" id="query_thing_able_btn">有效事件</button>
+						<button class="btn btn-yellow btn-xs" id="query_thing_disable_btn">失效事件</button>
 						<input type="text" class="form-control input-sm"
 							placeholder="输入参与人查询" id="thing_title_query_input">
 						<button class="btn btn-white btn-xs" id="thing_title_query_btn">查 询</button>
@@ -155,15 +162,15 @@
 						
 
 					<div class="data-div row" id="thing_table">
-							<table class="table table-striped table-hover text-center">
+							<table class="table table-striped table-hover text-center table-bordered">
 									<thead>
 										<tr>
 											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">事件对象</th>
-											<th  class="text-center col-lg-4 col-md-4 col-sm-4 col-xs-4">事件内容</th>
-											<th  class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-1">日期类型</th>
+											<th  class="text-center col-lg-3 col-md-2 col-sm-3 col-xs-3">事件内容</th>
 											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">事件日期</th>
-											<th  class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-1">提醒次数</th>
-											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2"></th>
+											<th  class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-1">日期类型</th>
+											<th  class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-1">是否每年循环</th>
+											<th  class="text-center col-lg-3 col-md-3 col-sm-3 col-xs-3">操作按钮</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -177,7 +184,7 @@
 				<!-- 分页条信息 -->
 				<div class="col-md-6 nav" id="thing_page_nav"></div>
 			</div>
-					<!--弹出窗口添加资源-->
+					<!--弹出窗口添加事件-->
 					<div class="modal fade" id="addThing" role="dialog"
 						aria-labelledby="gridSystemModalLabel">
 						<div class="modal-dialog" role="document">
@@ -196,7 +203,7 @@
 												<label  class="col-xs-3 control-label">事件对象：</label>
 												<div class="col-xs-8 ">
 													<input type="text" class="form-control input-sm duiqi" id="add_thing_title_input"
-														 placeholder="" name="thingTitle">
+														 placeholder="" name="thingTitle" maxlength="60">
 													<span class="help-block"></span>
 												</div>
 											</div>
@@ -204,7 +211,7 @@
 												<label  class="col-xs-3 control-label">事件内容：</label>
 												<div class="col-xs-8 ">
 													<input type="text" class="form-control input-sm duiqi" id="add_thing_text_input"
-														 placeholder="" name="thingText">
+														 placeholder="" name="thingText" maxlength="200">
 													<span class="help-block"></span>
 												</div>
 											</div>
@@ -225,16 +232,13 @@
 													</label>
 											</div>
 											<div class="form-group">
-												<label  class="col-xs-3 control-label">选择提醒次数：</label>
-												<div class="col-xs-3">
-														<select class="form-control" id="add_thing_alertNum_input" name="alertNum">
-																<option>99</option>
-																<option>20</option>
-																<option>10</option>
-																<option>5</option>
-																<option>1</option>
-														</select>
-												</div>
+												<label class="col-xs-3 control-label">是否每年循环提醒：</label>
+												<label class="radio-inline"> 
+													<input type="radio"	name="add_circulate_radio" id="add_thing_circulate_input1"  value="0">否
+												</label>
+												<label class="radio-inline"> 
+													<input type="radio"	name="add_circulate_radio" id="add_thing_circulate_input2"  value="1" checked>是 
+												</label>
 											</div>
 										</form>
 									</div>
@@ -251,7 +255,7 @@
 						<!-- /.modal-dialog -->
 					</div>
 
-					<!--修改资源弹出窗口-->
+					<!--修改事件弹出窗口-->
 					<div class="modal fade" id="editThing" role="dialog"
 						aria-labelledby="gridSystemModalLabel">
 						<div class="modal-dialog" role="document">
@@ -299,15 +303,14 @@
 													</label>
 											</div>
 											<div class="form-group">
-												<label  class="col-xs-3 control-label">选择提醒次数：</label>
-												<div class="col-xs-3">
-														<select class="form-control" id="edit_thing_alertNum_input" name="EditAlertNum">
-																<option value="99">99</option>
-																<option value="20">20</option>
-																<option value="10">10</option>
-																<option value="5">5</option>
-																<option value="1">1</option>
-														</select>
+												<div class="form-group">
+													<label class="col-xs-3 control-label">是否每年循环提醒：</label>
+													<label class="radio-inline"> 
+														<input type="radio"	name="edit_circulate_radio" id="edit_thing_circulate_input1"  value="0" >否
+													</label>
+													<label class="radio-inline"> 
+														<input type="radio"	name="edit_circulate_radio" id="edit_thing_circulate_input2"  value="1" >是 
+													</label>
 												</div>
 											</div>
 										</form>
@@ -330,8 +333,8 @@
 				<div role="tabpanel" class="tab-pane" id="journal">
 
 					<div class="check-div form-inline row">
-						<button class="btn btn-yellow btn-xs" id="add_journal_modal_btn">添加事件</button>
-						<button class="btn btn-yellow btn-xs" id="query_journal_all_btn">查询所有</button>
+						<button class="btn btn-yellow btn-xs" id="add_journal_modal_btn">写日记</button>
+						<button class="btn btn-yellow btn-xs" id="query_journal_all_btn">浏览日记</button>
 						<input type="text" class="form-control input-sm"
 							placeholder="时间查询格式  yyyy-mm-dd" id="journal_time_query_input">
 						<button class="btn btn-white btn-xs" id="journal_time_query_btn">查 询</button>
@@ -342,10 +345,10 @@
 									<thead>
 										<tr>
 											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">日期</th>
-											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">星期</th>
-											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">天气</th>
-											<th  class="text-center col-lg-4 col-md-4 col-sm-4 col-xs-4">内容</th>
-											<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2"></th>
+											<th  class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-1">星期</th>
+											<th  class="text-center col-lg-1 col-md-1 col-sm-1 col-xs-1">天气</th>
+											<th  class="text-center col-lg-5 col-md-5 col-sm-5 col-xs-5">内容</th>
+											<th  class="text-center col-lg-3 col-md-3 col-sm-3 col-xs-3">操作按钮</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -359,7 +362,79 @@
 				<!-- 分页条信息 -->
 				<div class="col-md-6 nav" id="journal_page_nav"></div>
 			</div>
-					<!--弹出窗口添加资源-->
+
+				<!--弹出窗口添加事件-->
+				<div class="modal fade" id="journal_change_thing" role="dialog"
+				aria-labelledby="gridSystemModalLabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="gridSystemModalLabel">记为事件</h4>
+						</div>
+						<div class="modal-body">
+							<div class="container-fluid">
+								<form class="form-horizontal">
+									<div class="form-group ">
+										<label  class="col-xs-3 control-label">事件对象：</label>
+										<div class="col-xs-8 ">
+											<input type="text" class="form-control input-sm duiqi" id="add_change_thing_title_input"
+												 placeholder="" name="thingTitle" maxlength="60">
+											<span class="help-block"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<label  class="col-xs-3 control-label">事件内容：</label>
+										<div class="col-xs-8 ">
+											<input type="text" class="form-control input-sm duiqi" id="add_change_thing_text_input"
+												 placeholder="" name="thingText" maxlength="200">
+											<span class="help-block"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<label  class="col-xs-3 control-label">事件日期：</label>
+										<div class="col-xs-8">
+											<input type="" class="form-control input-sm duiqi" id="add_change_thing_time_input"
+												 placeholder="" name="thingTime">
+										</div>
+									</div>
+									<div class="form-group">
+											<label class="col-xs-3 control-label">日期类型：</label>
+											<label class="radio-inline"> 
+												<input type="radio"	name="add_change_thing_radio" id="add_change_thing_timeType_input1"  value="1" disabled>阳历
+											</label>
+											<label class="radio-inline"> 
+												<input type="radio"	name="add_change_thing_radio" id="add_change_thing_timeType_input2"  value="2" disabled>农历 
+											</label>
+									</div>
+									<div class="form-group">
+										<label class="col-xs-3 control-label">是否每年循环提醒：</label>
+										<label class="radio-inline"> 
+											<input type="radio"	name="add_circulate_radio" id="add_change_thing_circulate_input1"  value="0">否
+										</label>
+										<label class="radio-inline"> 
+											<input type="radio"	name="add_circulate_radio" id="add_change_thing_circulate_input2"  value="1" checked>是 
+										</label>
+									</div>
+								</form>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-xs btn-xs btn-white"
+								data-dismiss="modal">取 消</button>
+							<button type="button" class="btn btn-xs btn-xs btn-green" id="add_change_thing_btn">保
+								存</button>
+						</div>
+					</div>
+					<!-- /.modal-content -->
+				</div>
+				<!-- /.modal-dialog -->
+			</div>
+
+					<!--弹出窗口写日记-->
 					<div class="modal fade" id="addJournal" role="dialog"
 						aria-labelledby="gridSystemModalLabel">
 						<div class="modal-dialog" role="document">
@@ -645,7 +720,7 @@
 				<!--弹出窗口心情记录-->
 				<div class="modal fade" id="addPhoto" role="dialog"
 				aria-labelledby="gridSystemModalLabel">
-				<div class="modal-dialog" role="document">
+				<div class="modal-dialog" role="document" style="width: 700px">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal"
@@ -654,7 +729,7 @@
 							</button>
 							<h4 class="modal-title" id="gridSystemModalLabel">添加照片</h4>
 						</div>
-						<div class="modal-body">
+						<div class="modal-body" style="height:500px">
 							<div class="container-fluid">
 								<form class="form-horizontal">
 									<div class="form-group ">
@@ -677,9 +752,9 @@
 									</div>
 									<div class="form-group ">
 										<label  class="col-xs-3 control-label">添加图片：</label>
-										<div class="col-xs-8 ">
-											<input type="file" class="duiqi"  id="add_photo_file_input" value="请选择图片" placeholder="选择图片" />
-											<span class="help-block"></span>
+										<div class="col-xs-8">
+											<!--<input type="file" class="duiqi"  id="add_photo_file_input" value="请选择图片" placeholder="选择图片" />-->
+											<div class="add_photo_file_input" id="add_photo_file_input"></div>
 										</div>
 									</div>
 								</form>
@@ -688,100 +763,14 @@
 						<div class="modal-footer">
 							<button type="button" class="btn btn-xs btn-xs btn-white"
 								data-dismiss="modal">取 消</button>
-							<button type="button" class="btn btn-xs btn-xs btn-green" id="add_modal_photo_btn">保
-								存</button>
+							<!--<button type="button" class="btn btn-xs btn-xs btn-green" id="add_modal_photo_btn">保
+								存</button>-->
 						</div>
 					</div>
 					<!-- /.modal-content -->
 				</div>
 				<!-- /.modal-dialog -->
 			</div>
-
-					<!--弹出修改用户窗口-->
-					<div class="modal fade" id="reviseSchool" role="dialog"
-						aria-labelledby="gridSystemModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal"
-										aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-									<h4 class="modal-title" id="gridSystemModalLabel">修改地区</h4>
-								</div>
-								<div class="modal-body">
-									<div class="container-fluid">
-										<form class="form-horizontal">
-											<div class="form-group ">
-												<label for="sName" class="col-xs-3 control-label">地区名称：</label>
-												<div class="col-xs-8 ">
-													<input type="email" class="form-control input-sm duiqi"
-														id="" placeholder="">
-												</div>
-											</div>
-											<div class="form-group ">
-												<label for="sName" class="col-xs-3 control-label">经度：</label>
-												<div class="col-xs-8 ">
-													<input type="email" class="form-control input-sm duiqi"
-														id="" placeholder="">
-												</div>
-											</div>
-											<div class="form-group">
-												<label for="sLink" class="col-xs-3 control-label">纬度：</label>
-												<div class="col-xs-8 ">
-													<input type="" class="form-control input-sm duiqi"
-														id="" placeholder="">
-												</div>
-											</div>
-											<div class="form-group">
-												<label for="" class="col-xs-3 control-label">简称：</label>
-												<div class="col-xs-8">
-													<input type="" class="form-control input-sm duiqi"
-														id="" placeholder="">
-												</div>
-											</div>
-										</form>
-									</div>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-xs btn-white"
-										data-dismiss="modal">取 消</button>
-									<button type="button" class="btn btn-xs btn-green">保 存</button>
-								</div>
-							</div>
-							<!-- /.modal-content -->
-						</div>
-						<!-- /.modal-dialog -->
-					</div>
-					<!-- /.modal -->
-
-					<!--弹出删除用户警告窗口-->
-					<div class="modal fade" id="deleteSchool" role="dialog"
-						aria-labelledby="gridSystemModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal"
-										aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-									<h4 class="modal-title" id="gridSystemModalLabel">提示</h4>
-								</div>
-								<div class="modal-body">
-									<div class="container-fluid">确定要删除该地区？删除后不可恢复！</div>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-xs btn-white"
-										data-dismiss="modal">取 消</button>
-									<button type="button" class="btn btn-xs btn-danger">保
-										存</button>
-								</div>
-							</div>
-							<!-- /.modal-content -->
-						</div>
-						<!-- /.modal-dialog -->
-					</div>
-					<!-- /.modal -->
 
 				</div>
 				<!--账号密码管理模块-->
@@ -921,185 +910,6 @@
 							</div>
 				
 					</div>
-				<!--时间段管理模块-->
-				<div role="tabpanel" class="tab-pane" id="time">
-					<div class="check-div form-inline">
-						<span href="#sitt" aria-controls="sitt" role="tab"
-							data-toggle="tab" style="cursor: pointer;"><span
-							class="glyphicon glyphicon glyphicon-chevron-left"></span>&nbsp;&nbsp;返回上一页</span>
-
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<button class="btn btn-yellow btn-xs " data-toggle="modal"
-							data-target="#addTime">添加时间段</button>
-
-					</div>
-					<div class="data-div">
-						<div class="row tableHeader">
-							<div class="col-xs-3 ">编码</div>
-							<div class="col-xs-3">开始</div>
-							<div class="col-xs-3">结束</div>
-
-							<div class="col-xs-3">操作</div>
-						</div>
-						<div class="tablebody">
-
-							<div class="row">
-								<div class="col-xs-3 ">6426398978</div>
-								<div class="col-xs-3">10:10</div>
-								<div class="col-xs-3">19:30</div>
-								<div class="col-xs-3">
-									<button class="btn btn-success btn-xs" data-toggle="modal"
-										data-target="#changeTime">修改</button>
-									<button class="btn btn-danger btn-xs" data-toggle="modal"
-										data-target="#deleteTime">删除</button>
-								</div>
-							</div>
-
-						</div>
-
-					</div>
-					<!--页码块-->
-					<footer class="footer">
-					<ul class="pagination">
-						<li><select>
-								<option>1</option>
-								<option>2</option>
-								<option>3</option>
-								<option>4</option>
-								<option>5</option>
-								<option>6</option>
-								<option>7</option>
-								<option>8</option>
-								<option>9</option>
-								<option>10</option>
-						</select> 页</li>
-						<li class="gray">共20页</li>
-						<li><i class="glyphicon glyphicon-menu-left"> </i></li>
-						<li><i class="glyphicon glyphicon-menu-right"> </i></li>
-					</ul>
-					</footer>
-
-					<!--弹出增加时间段窗口-->
-					<div class="modal fade" id="addTime" role="dialog"
-						aria-labelledby="gridSystemModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal"
-										aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-									<h4 class="modal-title" id="gridSystemModalLabel">时间段设置</h4>
-								</div>
-								<div class="modal-body">
-									<div class="container-fluid">
-										<form class="form-horizontal">
-											<div class="form-group ">
-												<label for="sName" class="col-xs-3 control-label">开始时间：</label>
-												<div class="col-xs-8 ">
-													<input type="email" class="form-control input-sm"
-														id="" placeholder="">
-												</div>
-											</div>
-											<div class="form-group ">
-												<label for="sName" class="col-xs-3 control-label">结束时间：</label>
-												<div class="col-xs-8 ">
-													<input type="email" class="form-control input-sm"
-														id="" placeholder="">
-												</div>
-											</div>
-										</form>
-									</div>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-xs btn-white"
-										data-dismiss="modal">取 消</button>
-									<button type="button" class="btn btn-xs btn-green">保 存</button>
-								</div>
-							</div>
-							<!-- /.modal-content -->
-						</div>
-						<!-- /.modal-dialog -->
-					</div>
-					<!-- /.modal -->
-
-					<!--修改增加时间段窗口-->
-					<div class="modal fade" id="changeTime" role="dialog"
-						aria-labelledby="gridSystemModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal"
-										aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-									<h4 class="modal-title" id="gridSystemModalLabel">修改时间段</h4>
-								</div>
-								<div class="modal-body">
-									<div class="container-fluid">
-										<form class="form-horizontal">
-											<div class="form-group ">
-												<label for="sName" class="col-xs-3 control-label">开始时间：</label>
-												<div class="col-xs-8 ">
-													<input type="email" class="form-control input-sm duiqi"
-														id="" placeholder="">
-												</div>
-											</div>
-											<div class="form-group ">
-												<label for="sName" class="col-xs-3 control-label">结束时间：</label>
-												<div class="col-xs-8 ">
-													<input type="email" class="form-control input-sm duiqi"
-														id="" placeholder="">
-												</div>
-											</div>
-										</form>
-									</div>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-xs btn-white"
-										data-dismiss="modal">取 消</button>
-									<button type="button" class="btn btn-green btn-xs">保 存</button>
-								</div>
-							</div>
-							<!-- /.modal-content -->
-						</div>
-						<!-- /.modal-dialog -->
-					</div>
-					<!-- /.modal -->
-					<!--弹出删除时间段警告窗口-->
-					<div class="modal fade" id="deleteTime" role="dialog"
-						aria-labelledby="gridSystemModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal"
-										aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-									<h4 class="modal-title" id="gridSystemModalLabel">提示</h4>
-								</div>
-								<div class="modal-body">
-									<div class="container-fluid">确定要删除该时间段？</div>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-xs btn-white"
-										data-dismiss="modal">取 消</button>
-									<button type="button" class="btn btn-danger btn-xs">保
-										存</button>
-								</div>
-							</div>
-							<!-- /.modal-content -->
-						</div>
-						<!-- /.modal-dialog -->
-					</div>
-					<!-- /.modal -->
-
-				</div>
 				<!--心情记录模块-->
 				<div role="tabpanel" class="tab-pane" id="mind">
 					<div class="check-div form-inline row">
@@ -1179,6 +989,7 @@
 	</div>
 
 	<script src="${APP_PATH }/static/js/jquery.nouislider.js"></script>
+	<script type="text/javascript" src="${APP_PATH }/static/js/imagesUpload.js"></script>
 
 	<!--页面初始化配置2-->
 	<script>
@@ -1199,6 +1010,15 @@
 
 		//为心愿添加模态框中开启时间
 		$("#add_wish_over_time_input").solarlunar();
+
+		$.ajax({
+			url:"${APP_PATH}/lastMind",
+			data:"userId="+user_array[0],
+			type:"POST",
+			success:function(data){console.log(data);
+				$("#userMind_show").text(data.extend.ming);
+			}
+		})
 	</script>
 
 	<!--表格构建显示分页栏和点击分页条,以及前往页面请求，显示校验结果提示的信息及消除-->
@@ -1382,7 +1202,8 @@
 		$("#add_thing_btn").click(function(){
 			var add_thing_title_value = $("#add_thing_title_input").val();
 			var add_thing_text_value = $("#add_thing_text_input").val();
-			var pattern = new RegExp("[`~!@#$^&*()=|{}''\\[\\]<>/?~！@#￥……&*（）——|{}【】‘”“'？]") ;;
+			var pattern = new RegExp("[`~!@#$^&*()=|{}''\\[\\]<>/?~！@#￥……&*（）——|{}【】‘”“'？]") ;
+			var circulate = $(':radio[name = "add_circulate_radio"]:checked').val();
 			if(pattern.test(add_thing_text_value)){
 				show_validate_msg("#add_thing_text_input","error","存在特殊字符");
 				return false;
@@ -1403,7 +1224,8 @@
 					thingText : add_thing_text_value,
 					thingTime : $("#add_thing_time_input").val(),
 					timeType : open_type,
-					alertNum : $("#add_thing_alertNum_input").val(),
+					circulate: circulate,
+					ability : 1,
 					userId : user_array[0]
 				},
 				success:function(result){
@@ -1420,6 +1242,16 @@
 			var data = {userId:userId,pn:1};
 			var result = to_page("${APP_PATH }/thingQueryAll",data,"thing");
 		});
+
+		//有效事件查询
+		$("#query_thing_able_btn").click(function(){
+			to_page("${APP_PATH}/thingQueryAble",{userId :user_array[0],pn:1},"thing");
+		})
+		
+		//失效事件查询
+		$("#query_thing_disable_btn").click(function(){
+			to_page("${APP_PATH}/thingQueryDisable",{userId :user_array[0],pn:1},"thing");
+		})
 
 		//事件参与人查询
 		$("#thing_title_query_btn").click(function(){
@@ -1450,16 +1282,16 @@
 		$(document).on("click",".thing_edit_btn",function(){
 			var thingTitle = $(this).parents("tr").find("td:eq(0)").text();
 			var thingText =  $(this).parents("tr").find("td:eq(1)").text();
-			var timeType = $(this).parents("tr").find("td:eq(2)").text() == '阳历'?1:2;
-			var time = $(this).parents("tr").find("td:eq(3)").text();
-			var alertNum = $(this).parents("tr").find("td:eq(4)").text();
+			var timeType = $(this).parents("tr").find("td:eq(3)").text() == '阳历'?1:2;
+			var time = $(this).parents("tr").find("td:eq(2)").text();
+			var circulate = $(this).parents("tr").find("td:eq(4)").text() == '是' ? 1 : 0;
 			var thingId = $(this).attr("thing_edit_id");
 			$("#edit_thing_btn").attr("thing_edit_id",thingId);
 			$("#edit_thing_title_input").val(thingTitle);
 			$("#edit_thing_text_input").val(thingText);
 			$("#edit_thing_timeType_input"+timeType).prop("checked","true");
 			$("#edit_thing_time_input").val(time);
-			$("#editThing select").val(alertNum);
+			$("input[name='edit_circulate_radio'][value="+circulate+"]").attr("checked",true); 
 			$('#editThing').modal({
 				backdrop : 'static'
 			});
@@ -1471,6 +1303,7 @@
 			var edit_thing_title_value = $("#edit_thing_title_input").val();
 			var edit_thing_text_value = $("#edit_thing_text_input").val();
 			var thingId = $(this).attr("thing_edit_id");
+			var circulate = $(':radio[name = "edit_circulate_radio"]:checked').val()
 			$.ajax({
 				url:"${APP_PATH }/thingUpdate",
 				type:"POST",
@@ -1480,17 +1313,33 @@
 					thingText : edit_thing_text_value,
 					thingTime : $("#edit_thing_time_input").val(),
 					timeType : $('input[name="editTimeType"]:checked').val(),
-					alertNum : $("#edit_thing_alertNum_input").val(),
+					circulate : circulate,
 					userId : user_array[0]
 				},
 				success:function(result){
 					alert(result.msg);
+					to_page(thing_query_url,thing_query_data,"thing");
 					$("#addThing").modal("hide");
 					$("#editThing").modal('hide');
 				}
 			})
 		});
 	
+		//事件效果置换
+		$(document).on("click",".thing_change_btn",function(){
+			var thingId =  $(this).attr("thing_change_id");
+			var ability =  $(this).attr("thing_change_ability");
+			var circulate = $(this).parents("tr").find("td:eq(0)").text() == '是'?1:0;
+			ability == 0 ? ability = 1 : ability = 0;
+			$.ajax({
+				url:"${APP_PATH}/thingUpdate",
+				type:"POST",
+				data:{thingId : thingId, ability : ability,circulate:circulate},
+					success:function(result){
+						to_page(thing_query_url,thing_query_data,"thing");
+				}
+			})
+		});
 
 		//构建查询后事件的表格的数据栏
 		function build_thing_table_body(result){
@@ -1498,13 +1347,20 @@
 			var things = result.extend.page.list;
 			$.each(things, function(index, item) {
 			  //var thingIdTd = $("<td></td>").append(item.thingId).addClass("hide");
-				var thingTitleTd = $("<td></td>").append(item.thingTitle);
+				var thingTitleTd = $("<td></td>").append(item.thingTitle);console.log(item.ability);
 				var thingTextTd = $("<td></td>").append(item.thingText);
 				var timeTypeTd = $("<td></td>").append(
 						item.timeType == '2' ? '农历' : '阳历');
 				var thingTimeTd = $("<td></td>").append(item.thingTime);
-				var alertNumTd = $("<td></td>")
-						.append(item.alertNum);
+				var circulateTd = $("<td></td>")
+						.append(item.circulate == '1' ? '是':'否');
+				var changeBtn = $("<button></button>").addClass(
+						"btn btn-primary btn-sm thing_change_btn").append(
+						$("<span></span>").addClass(
+								"glyphicon glyphicon-pencil")).append(item.ability == 1?"置为失效":"置为有效");
+				//为编辑按钮添加一个自定义的属性,来表示当前事件id
+				changeBtn.attr("thing_change_id",item.thingId);
+				changeBtn.attr("thing_change_ability",item.ability);
 				var editBtn = $("<button></button>").addClass(
 						"btn btn-primary btn-sm thing_edit_btn").append(
 						$("<span></span>").addClass(
@@ -1518,11 +1374,11 @@
 						"删除");
 				//为删除按钮添加一个自定义的属性来表示当前删除的事件id
 				delBtn.attr("thing_del_id",item.thingId);
-				var btnTd = $("<td></td>").append(editBtn).append(" ").append(
+				var btnTd = $("<td></td>").append(changeBtn).append(" ").append(editBtn).append(" ").append(
 						delBtn);
 				//append方法执行完成后还是返回原来的元素
-				$("<tr></tr>").append(thingTitleTd).append(thingTextTd).append(timeTypeTd).append(
-					thingTimeTd).append(alertNumTd).append(btnTd).appendTo("#thing_table tbody");
+				$("<tr></tr>").append(thingTitleTd).append(thingTextTd).append(thingTimeTd).append(
+					timeTypeTd).append(circulateTd).append(btnTd).appendTo("#thing_table tbody");
 			});
 		}
 	</script>
@@ -1808,6 +1664,7 @@
 				},
 				success : function(result){
 					alert(result.msg);
+					$("#userMind_show").text($("#add_mind_text_input").val());
 					to_page(mind_query_url,mind_query_data,"mind");
 					$("#addMind").modal("hide");
 				}
@@ -1982,6 +1839,8 @@
 		var journal_query_url;
 		var journal_query_data;//最新通过to_page构建页面的请求路径和数据
 
+		$("#add_change_thing_time_input").solarlunar();
+
 		//阅读日记
 		$(document).on("click",".journal_read_btn",function(){
 			var journalTime = $(this).parents("tr").find("td:eq(0)").text();
@@ -2040,6 +1899,59 @@
 			to_page("${APP_PATH }/queryJournalAll",{'userId':user_array[0],'pn':1},"journal");
 		})
 
+		//日记转提醒事件
+		$(document).on("click",".journal_change_btn",function(){
+			var journalTime = $(this).parents("tr").find("td:eq(0)").text();
+			var journalText = $(this).parents("tr").find("td:eq(3)").text();
+			$("input[name='edit_circulate_radio'][value="+1+"]").attr("checked",true);
+			$("#add_change_thing_time_input").val(journalTime);
+			$("#add_change_thing_text_input").val(journalText);
+			$("#add_change_thing_title_input").val("本人");
+			$("input[name='add_change_thing_radio'][value='1']").prop("checked",true); 
+			$("#journal_change_thing form").find("*").removeClass("has-error has-success");
+			$("#journal_change_thing form").find(".help-block").text("");
+			$("#journal_change_thing").modal({
+				backdrop : 'static'
+			});
+		})
+
+		//提醒时间模态框添加
+		$("#add_change_thing_btn").click(function(){
+			var thing_title = $("#add_change_thing_title_input").val();
+			var thing_text = $("#add_change_thing_text_input").val();
+			var pattern = new RegExp("[`~!@#$^&*()=|{}''\\[\\]<>/?~！@#￥……&*（）——|{}【】‘”“'？]") ;
+			var circulate = $(':radio[name = "add_change_thing_radio"]:checked').val();
+			if(pattern.test(thing_text)){
+				show_validate_msg("#add_change_thing_text_input","error","存在特殊字符");
+				return false;
+			}else{
+				show_validate_msg("#add_change_thing_text_input","success","");
+			}
+			if(pattern.test(thing_title)){
+				show_validate_msg("#add_change_thing_title_input","error","存在特殊字符");
+				return false;
+			}else{
+				show_validate_msg("#add_change_thing_title_input","success","");
+			}
+			$.ajax({
+				url:"${APP_PATH }/thingAdd",
+				type:"POST",
+				data:{
+					thingTitle : thing_title,
+					thingText : thing_text,
+					thingTime : $("#add_change_thing_time_input").val(),
+					timeType : $('input[name="add_change_thing_radio"]:checked').val(),
+					circulate: circulate,
+					ability : 1,
+					userId : user_array[0]
+				},
+				success:function(result){
+					alert(result.msg);
+					$("#journal_change_thing").modal("hide");
+				}
+			})
+		})
+
 		//journal表格体构建
 		function build_journal_table_body(result){
 			$("#journal_table tbody").empty();
@@ -2049,6 +1961,8 @@
 				var journalWeekTd = $("<td></td>").append(item.journalWeek);
 				var journalTextTd = $("<td></td>").append(item.journalText).addClass("limitNum");
 				var journalWeatherTd = $("<td></td>").append(item.journalWeather == 1 ? '晴天':(item.journalWeather == 2 ? '阴天' : "雨天"));
+				var changeBtn = $("<button></button>").addClass("btn btn-sm journal_change_btn btn-primary")
+								.append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("提醒");
 				var readBtn = $("<button></button>").addClass("btn btn-sm journal_read_btn btn-primary")
 								.append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("阅读");
 					//为阅读按钮添加一个自定义的属性,来表示当前事件id
@@ -2061,7 +1975,7 @@
 				//为删除按钮添加一个自定义的属性来表示当前删除的事件id
 				delBtn.attr("journal_del_id",item.journalId);
 
-				var btnTd = $("<td></td>").append(readBtn).append(" ").append(delBtn);
+				var btnTd = $("<td></td>").append(changeBtn).append(" ").append(readBtn).append(" ").append(delBtn);
 				//append方法执行完成后还是返回原来的元素
 				$("<tr></tr>").append(journalTimeTd).append(journalWeekTd).append(journalWeatherTd).append(journalTextTd).append(btnTd).appendTo("#journal_table tbody");
 			});
@@ -2093,13 +2007,13 @@
 		//添加打开模态框
 		$("#add_journal_modal_btn").click(function(){
 			var date = new Date();
-			var week = "星期" + date.getDay();
+			var week = date.getDay()==0?7:date.getDay();
 			var year = date.getFullYear();
 			var month = date.getMonth()+1;
 			var day =  date.getDate();
 			var journalTime = year+"年"+ month +"月" + day + "日";
 			$("#add_journal_time_input").text(journalTime);
-			$("#add_journal_week_input").text(week);
+			$("#add_journal_week_input").text("星期"+week);
 			//重置模态框样式
 			$("#add_journal_text_input").val("");
 			$("#addJournal form").find("*").removeClass("has-error has-success");
@@ -2147,12 +2061,20 @@
 			to_page("${APP_PATH}/queryPhotoByType",{'userId':user_array[0],'photoType':photoType},"photo");
 		})
 
-		//点击判断是否增加新照片
+		//点击判断是否增加新相册
 		$("#add_photo_type_checkbox").click(function(){
 			photo_type_judge == 0 ? photo_type_judge = 1 : photo_type_judge = 0;
 			$("#add_photo_type_select").toggle();
 			$("#add_photo_type_input").toggle();
 		})
+
+		
+		$("#photo_album_select").click(function(){
+			select_photo_type();
+		});
+		$("#add_photo_type_select").click(function(){
+			select_photo_type();
+		});
 
 		//查询用户相册类型函数
 		function select_photo_type(){
@@ -2205,7 +2127,14 @@
 			setInterval(time, 1000);
 		});
 
-		//添加模态框点击保存事件
+
+		$(".add_photo_file_input").initUpload({
+				uploadUrl : "${APP_PATH}/addPhoto",
+				fileMaxNum:	30
+      });
+
+
+		/* //添加模态框点击保存事件
 		$("#add_modal_photo_btn").click(function(){
 			var photo_time = $("#add_photo_time_input").val();
 			if(photo_type_judge == 0)
@@ -2235,7 +2164,7 @@
 						select_photo_type();
 				}
 			})
-		})
+		}) */
 
 		//构建照片表体
 		function build_photo_table_body(result){

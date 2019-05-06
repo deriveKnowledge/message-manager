@@ -20,6 +20,8 @@ public interface MindMapper {
 
     Mind selectByPrimaryKey(Integer mindId);
 
+    Mind selectMindLast(Integer userId);
+
     int updateByExampleSelective(@Param("record") Mind record, @Param("example") MindExample example);
 
     int updateByExample(@Param("record") Mind record, @Param("example") MindExample example);

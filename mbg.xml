@@ -40,6 +40,6 @@
 
 
 		<!-- table指定每个表的生成策略 -->
-		<table tableName="photos" domainObjectName="Photo"></table>
+		<table tableName="things" domainObjectName="Thing"></table>
 	</context>
 </generatorConfiguration>

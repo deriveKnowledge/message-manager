@@ -36,18 +36,18 @@ public class JournalController {
 			e.printStackTrace();
 			return Msg.fail("查询失败");
 		}
-		PageHelper.startPage(pn,2);System.out.println(date);
+		PageHelper.startPage(pn,5);System.out.println(date);
 		List<Journal> journals =  journalService.queryJournalByTime(userId, new java.sql.Date(date.getTime()));
-		PageInfo page =  new PageInfo(journals, 2);
+		PageInfo page =  new PageInfo(journals, 5);
 		return Msg.success("查询成功!").add("page", page);
 	}
 	
 	//根据用户ID查询日记
 	@RequestMapping("/queryJournalAll")
 	public @ResponseBody Msg queryJournalAll(Integer userId,Integer pn) {
-		PageHelper.startPage(pn,2);
+		PageHelper.startPage(pn,5);
 		List<Journal> journals =  journalService.queryJournalAll(userId);
-		PageInfo page =  new PageInfo(journals, 2);
+		PageInfo page =  new PageInfo(journals, 5);
 		return Msg.success("删除成功!").add("page", page);
 	}
 	

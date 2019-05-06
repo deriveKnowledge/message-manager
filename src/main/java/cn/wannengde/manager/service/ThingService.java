@@ -14,7 +14,27 @@ import cn.wannengde.manager.dao.ThingMapper;
 public class ThingService {
 	@Autowired
 	private ThingMapper thingMapper;
-	
+
+	//根据用户ID查询用户失效事件
+	public List<Thing> queryThingByUserIdDisable(Integer userId){
+		ThingExample example = new ThingExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andUserIdEqualTo(userId);
+		criteria.andAbilityEqualTo(0);
+		List<Thing> list = thingMapper.selectByExample(example);
+		return list;
+	}
+
+	//根据用户ID查询用户有效事件
+	public List<Thing> queryThingByUserIdAble(Integer userId){
+		ThingExample example = new ThingExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andUserIdEqualTo(userId);
+		criteria.andAbilityEqualTo(1);
+		List<Thing> list = thingMapper.selectByExample(example);
+		return list;
+	}
+
 	//增加事件
 	public void insert(Thing thing) {
 		thingMapper.insert(thing);

@@ -716,12 +716,16 @@ var open_type = -1; //表示日历被选类型，1：阳历，2：农历
                 $("#add_thing_timeType_input1").prop('checked', 'true');
                 $("#edit_thing_timeType_input2").prop('checked', 'false');
                 $("#edit_thing_timeType_input1").prop('checked', 'true');
+                $("#add_change_thing_timeType_input2").prop('checked', 'false');
+                $("#add_change_thing_timeType_input1").prop('checked', 'true');
                 break;
             case 2 : 
                 $("#add_thing_timeType_input1").prop('checked', 'false');
                 $("#add_thing_timeType_input2").prop('checked', 'true');
                 $("#edit_thing_timeType_input1").prop('checked', 'false');
                 $("#edit_thing_timeType_input2").prop('checked', 'true');
+                $("#add_change_thing_timeType_input1").prop('checked', 'false');
+                $("#add_change_thing_timeType_input2").prop('checked', 'true');
                 break;
         }
     }

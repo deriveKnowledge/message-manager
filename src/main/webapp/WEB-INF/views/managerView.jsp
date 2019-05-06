@@ -15,6 +15,7 @@
 <%
 	pageContext.setAttribute("APP_PATH", request.getContextPath());
 %>
+<link rel="shortcut icon" href="${APP_PATH}/favicon.ico" />
 <script src="${APP_PATH }/static/js/jquery.min.js"></script>
 <script src="${APP_PATH }/static/js/bootstrap.min.js"></script>
 <link href="${APP_PATH }/static/css/bootstrap.min.css" rel="stylesheet">

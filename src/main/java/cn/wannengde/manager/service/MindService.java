@@ -2,6 +2,7 @@ package cn.wannengde.manager.service;
 
 import java.util.List;
 
+import cn.wannengde.manager.bean.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,13 @@ import cn.wannengde.manager.dao.MindMapper;
 public class MindService {
 	@Autowired
 	private MindMapper mindMapper;
-	
+
+	//查询用户最后一条心情记录
+	public Mind queryUserLastMind(Integer userId){
+		Mind mind = mindMapper.selectMindLast(userId);
+		return mind;
+	}
+
 	//添加心情记录
 	public void addMind(Mind mind) {
 		mindMapper.insert(mind);

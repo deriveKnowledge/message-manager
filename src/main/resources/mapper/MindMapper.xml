@@ -88,6 +88,13 @@
     from minds
     where mind_id = #{mindId,jdbcType=INTEGER}
   </select>
+  <select id="selectMindLast" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from minds
+    where user_id = #{mindId,jdbcType=INTEGER}
+    ORDER By mind_id desc LIMIT 1;
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from minds
     where mind_id = #{mindId,jdbcType=INTEGER}

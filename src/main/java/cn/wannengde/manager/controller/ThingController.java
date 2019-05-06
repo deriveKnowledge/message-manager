@@ -45,16 +45,20 @@ public class ThingController {
 				String temp = thing.getThingTime();
 				temp = temp.substring(5); //截取日期的月日
 				if(thing.getTimeType() == 1) {
-					if(temp.equals(timeS) && thing.getAlertNum() > 0) {
+					if(temp.equals(timeS) && thing.getAbility() != 0) {
 						text += "["+thing.getThingTitle() + " : " + thing.getThingText() + "]/t";
-						thing.setAlertNum(thing.getAlertNum() - 1);
-						thingService.updateByThing(thing);
+						if(thing.getCirculate() == 0){ //如果不是每年循环的置为废弃
+							thing.setAbility(0);
+							thingService.updateByThing(thing);
+						}
 					}
 				}else {
-					if(temp.equals(timeL) && thing.getAlertNum() >0) {
+					if(temp.equals(timeL) && thing.getAbility() != 0) {
 						text += "["+thing.getThingTitle() + " : " + thing.getThingText() + "]";
-						thing.setAlertNum(thing.getAlertNum() - 1);
-						thingService.updateByThing(thing);
+						if (thing.getCirculate() == 0){
+							thing.setAbility(0);
+							thingService.updateByThing(thing);
+						}
 					}
 				}
 			}
@@ -68,7 +72,31 @@ public class ThingController {
 			}
 		}
 	}
-	
+
+	//根据用户ID查询失效事件
+	@ResponseBody
+	@RequestMapping("/thingQueryDisable")
+	public Msg thingQueryDisable(@RequestParam(value = "pn", defaultValue = "1") Integer pn
+			,@RequestParam(value="userId",defaultValue="0")Integer userId) {
+		Msg msg = new Msg();
+		PageHelper.startPage(pn, 5);
+		List<Thing> things = thingService.queryThingByUserIdDisable(userId);
+		PageInfo page = new PageInfo(things, 5);
+		return msg.ok("查询成功").add("page",page);
+	}
+
+	//根据用户ID查询有效事件
+	@ResponseBody
+	@RequestMapping("/thingQueryAble")
+	public Msg thingQueryAble(@RequestParam(value = "pn", defaultValue = "1") Integer pn
+			,@RequestParam(value="userId",defaultValue="0")Integer userId) {
+		Msg msg = new Msg();
+		PageHelper.startPage(pn, 5);
+		List<Thing> things = thingService.queryThingByUserIdAble(userId);
+		PageInfo page = new PageInfo(things, 5);
+		return msg.ok("查询成功").add("page",page);
+	}
+
 	//插入事件
 	@ResponseBody
 	@RequestMapping("/thingAdd")
@@ -99,6 +127,7 @@ public class ThingController {
 	@ResponseBody
 	@RequestMapping("/thingUpdate")
 	public Msg thingUpdate(Thing thing) {
+		if(thing.getCirculate() == 1) thing.setAbility(1);
 		Msg msg = new Msg();System.out.println(thing);
 		thingService.updateByThing(thing);
 		return msg.ok("更新完成");

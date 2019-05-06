@@ -88,25 +88,18 @@ public class PhotoController {
 	//添加图片
 	@RequestMapping("/addPhoto")
 	@ResponseBody
-	public Msg addPhoto(Photo photo,HttpServletRequest request,MultipartFile file) {
+	public Msg addPhoto(Photo photo,HttpServletRequest request,@RequestParam(value = "file")MultipartFile[] files) throws IOException {
 				Msg msg = new Msg();
 				// 得到上传图片的地址
 				String imgPath;
-				try {
-		            //ImageUtils为之前添加的工具类
-					imgPath = ImageUtils.upload(request, file);System.out.println(imgPath);
-					if (imgPath != null) {
-						// 将上传图片的地址封装到实体类
+				if (files != null && files.length != 0) {
+					for (int i = 0; i < files.length; i++) {
+						MultipartFile file = files[i];
+						imgPath=ImageUtils.upload(request, file);
 						photo.setPhotoUrl(imgPath);
-						System.out.println("-----------------图片上传成功！");msg.ok("图片上传成功");
 						photoService.addPhoto(photo);
-					}else{
-		                System.out.println("-------imgPath null----------图片上传失败！");msg.no("图片上传失败");
-		            }
-				} catch (IOException e) {
-					e.printStackTrace();
-					System.out.println("-------try catch---------图片上传失败！");msg.no("图片上传失败");
+					}
 				}
-		return msg;
+		return msg.ok("上传成功");
 	}
 }

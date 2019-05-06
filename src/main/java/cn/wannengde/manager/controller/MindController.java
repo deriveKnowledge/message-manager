@@ -17,10 +17,20 @@ import cn.wannengde.manager.service.MindService;
 
 @Controller
 public class MindController {
-	
+
 	@Autowired
 	private MindService mindService;
-	
+
+	//查询用户最后一条心情记录
+	@RequestMapping("/lastMind")
+	@ResponseBody
+	public Msg lastMind(Integer userId){
+		Mind mind = mindService.queryUserLastMind(userId);
+		String ming = mind.getMindText();
+		System.out.println("============================>不可能"+ming);
+		return Msg.success("ok").add("ming",ming);
+	}
+
 	//删除心情记录
 	@RequestMapping("/deleteMind")
 	@ResponseBody
@@ -28,7 +38,7 @@ public class MindController {
 		mindService.deleteMindById(mindId);
 		return Msg.success("删除成功！");
 	}
-	
+
 	//根据用户ID进行内容模糊查询
 	@RequestMapping("/queryMindByLike")
 	@ResponseBody
@@ -36,7 +46,7 @@ public class MindController {
 		List<Mind> minds = mindService.queryLikeText(mindText,userId);
 		return Msg.success("查询成功").add("minds",minds);
 	}
-	
+
 	//根据用户Id查询所有
 	@RequestMapping("/queryMindAll")
 	@ResponseBody
@@ -47,7 +57,7 @@ public class MindController {
 		PageInfo page = new PageInfo(minds, 7);
 		return Msg.success("查询成功").add("page", page);
 	}
-	
+
 	//添加心情记录
 	@RequestMapping("/addMind")
 	@ResponseBody

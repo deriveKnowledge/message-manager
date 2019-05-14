@@ -85,7 +85,33 @@ public class UserController {
 		session.invalidate();
 		return "login";
 	}
-	
+
+	//找回密码
+	@RequestMapping("/backPassword")
+	@ResponseBody
+	public Msg backPassword(@RequestParam(value="username",defaultValue="") String username,
+					  @RequestParam(value="password",defaultValue="") String password,
+					  @RequestParam(value="idCode",defaultValue="")String idcode, HttpServletRequest request) {
+		if (username != null) {
+			if (!request.getSession().getAttribute("idcode").equals(idcode)) {
+				return Msg.fail("验证码错误");
+			}
+			if(!MainTool.judgeEmail(username)){
+				return Msg.fail("请输入正确邮箱");
+			}
+			List<User> users = userService.login(username);
+			if (users==null) {
+				return Msg.fail("用户名不存在");
+			}
+			User user = users.get(0);
+			user.setUserPassword(password);
+			userService.updateUser(user);
+			return Msg.success("密码修改成功");
+		} else {
+			return Msg.fail("用户名不能为空");
+		}
+	}
+
 	//注册功能
 	@RequestMapping("/regist")
 	@ResponseBody
@@ -124,14 +150,19 @@ public class UserController {
 	
 	//发送邮件验证码
 	@RequestMapping("/sendMailCode")
-	public void sendMailCode(@RequestParam(value="mail",defaultValue="")String mail,
+	@ResponseBody
+	public Msg sendMailCode(@RequestParam(value="mail",defaultValue="")String mail,
 			HttpServletResponse response,HttpServletRequest request) throws Exception {
+		if(!MainTool.judgeEmail(mail)){
+			return Msg.fail("请输入正确邮箱");
+		}
 		response.setCharacterEncoding("utf-8");
 		int idcode = (int) (Math.random()*100000);
 		String text = Integer.toString(idcode);
 		request.getSession().setAttribute("idcode", text);
 		MailUtil mailUtil = new MailUtil();
 		mailUtil.sendMail(mail, text);
+		return Msg.success("发送成功");
 	}
 	
 	//登陆请求

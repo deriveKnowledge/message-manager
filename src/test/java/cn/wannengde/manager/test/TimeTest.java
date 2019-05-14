@@ -241,9 +241,10 @@ public class TimeTest {
         Calendar calendar = Calendar.getInstance();
         System.out.println("DATE:" + calendar.get(Calendar.DATE));
         System.out.println(calendar.getTimeInMillis());
-        calendar.set(2031, 1, 11);
+        calendar.set(2019, 11, 10);
         System.out.println(calendar.getTime());
         Lunar lunar=TimeTest.converterDate(calendar.getTimeInMillis());
+        System.out.println(lunar.toString());
         System.out.println(lunar.getDay());
         System.out.println(lunar.getMonth());
     }

@@ -60,7 +60,7 @@ public class PhotoController {
 	@ResponseBody
 	public Msg queryPhotoByType(Integer userId,@RequestParam(value="pn",defaultValue="1")Integer pn,String photoType) {
 		Msg msg = new Msg();
-		PageHelper.startPage(pn,5);
+		PageHelper.startPage(pn,12);
 		List<Photo> photos = photoService.queryPhotoByType(userId, photoType);
 		PageInfo page = new PageInfo(photos, 5);
 		return msg.ok("查询成功！").add("page",page);
@@ -79,7 +79,7 @@ public class PhotoController {
 	@ResponseBody
 	public Msg queryPhotoAll(Integer userId,@RequestParam(value="pn",defaultValue="1")Integer pn) {
 		Msg msg = new Msg();
-		PageHelper.startPage(pn,5);
+		PageHelper.startPage(pn,12);
 		List<Photo> photos = photoService.queryPhotoAll(userId);
 		PageInfo page = new PageInfo(photos, 5);
 		return msg.ok("查询成功！").add("page",page);

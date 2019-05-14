@@ -40,9 +40,37 @@
 		text-overflow:ellipsis;
 	}
 	.tupian{
-		height: 70px;
-		width: 70px;
+		height: 200px;
+		width: 150px;
 	}
+
+	.photoTable{
+		width: 100%;
+		height: 100%;
+		padding: 0 0 0 10px;
+	}
+	.cardBox{
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+                text-align: center;
+                float: left;
+                margin-right: 10px;
+                padding: 5px;
+                padding-top: 15px;
+				margin: 10px 0 0 0;
+            }
+
+            .headerBox {
+                color: #fff;
+                padding: 10px;
+                font-size: 15px;
+                height: 60px;
+            }
+
+            .bodyBox {
+				width: 100%;
+				height: 100%;
+                padding: 10px;
+            }
 </style>
 
 <!--页面初始化配置1-->
@@ -695,21 +723,8 @@
 						<select class="" id="photo_album_select"></select>
 						<button class="btn btn-white btn-xs" id="photo_album_btn">查 询</button>
 					</div>
-					<div class="data-div row" id="photo_table">
-						<table class="table table-striped table-hover text-center">
-								<thead>
-									<tr>
-										<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">上传日期</th>
-										<th  class="text-center col-lg-5 col-md-5 col-sm-5 col-xs-5">上传相册</th>
-										<th  class="text-center col-lg-2 col-md-2 col-sm-2 col-xs-2">上传相片</th>
-										<th  class="text-center col-lg-3 col-md-3 col-sm-3 col-xs-3"></th>
-									</tr>
-								</thead>
-								<tbody>
-								</tbody>
-							</table>
-				</div>
-						<!-- 显示分页信息 -->
+					<div  id="photo_table" class="container-fluid photoTable"></div>
+						<!-- 显示分页信息-->
 				<div class="row text-center">
 					<!-- 分页文字信息 -->
 					<div class="col-md-6 text-primary info" id="photo_page_info"></div>
@@ -2069,12 +2084,7 @@
 		})
 
 		
-		$("#photo_album_select").click(function(){
-			select_photo_type();
-		});
-		$("#add_photo_type_select").click(function(){
-			select_photo_type();
-		});
+		
 
 		//查询用户相册类型函数
 		function select_photo_type(){
@@ -2127,7 +2137,7 @@
 			setInterval(time, 1000);
 		});
 
-
+		//图片批量上传插件
 		$(".add_photo_file_input").initUpload({
 				uploadUrl : "${APP_PATH}/addPhoto",
 				fileMaxNum:	30
@@ -2168,12 +2178,16 @@
 
 		//构建照片表体
 		function build_photo_table_body(result){
-			$("#photo_table tbody").empty();
+			$("#photo_table").empty();
 			var photos = result.extend.page.list;
+			var sum = 0;
+			var trPhoto = $("<div></div>").addClass("row").attr("style","margin:10px");
 			$.each(photos, function(index, item) {
-				var photoTimeTd = $("<td></td>").append(item.photoTime);
-				var photoTypeTd = $("<td></td>").append(item.photoType);
-				var photoFileTd = $("<td></td>").append($("<img>").attr("src","${APP_PATH}/"+item.photoUrl).addClass("tupian"));
+				sum++;
+				var cardBox = $("<div></div>").addClass("cardBox").addClass("col-md-2").addClass("col-xs-6").addClass("col-sm-4");
+				var bodyBox = $("<div></div>").addClass("bodyBox");
+				var headerBox = $("<div></div>").addClass("headerBox");
+				var imgShow = $("<img>").attr("src","${APP_PATH}/"+item.photoUrl).addClass("tupian");
 				var downBtn = $("<a></a>").addClass("btn btn-sm photo_down_btn btn-primary")
 								.append($("<span></span>").addClass("glyphicon glyphicon-download-alt")).append("下载").attr("href","${APP_PATH}/photoDownload?fileName="+item.photoUrl);
 					//为阅读按钮添加一个自定义的属性,来表示当前事件id
@@ -2186,10 +2200,74 @@
 				//为删除按钮添加一个自定义的属性来表示当前删除的事件id
 				delBtn.attr("photo_del_id",item.photoId);
 
-				var btnTd = $("<td></td>").append(downBtn).append(" ").append(delBtn);
-				//append方法执行完成后还是返回原来的元素
-				$("<tr></tr>").append(photoTimeTd).append(photoTypeTd).append(photoFileTd).append(btnTd).appendTo("#photo_table tbody");
+				var btnDiv = $("<div></div>").append(downBtn).append(" ").append(delBtn);
+				bodyBox.append(imgShow);
+				headerBox.append(btnDiv);
+				cardBox.append(bodyBox).append(headerBox);
+				trPhoto.append(cardBox);
+				if(sum==6 || index == photos.length-1){console.log("sum="+sum);
+					sum = 0;
+					var temp = trPhoto.clone();
+					$("#photo_table").append(temp);
+					trPhoto.empty();
+				}				
 			});
+			// $("#photo_table").empty();
+			// var photos = result.extend.page.list;
+			// var sum = 0;
+			// var rowPhoto = $("<div></div>").addClass("row");
+			// $.each(photos, function(index, item) {
+			// 	sum++;
+			// 	var cardBox = $("<div></div>").addClass("cardBox").addClass("col-sm-2");
+			// 	var bodyBox = $("<div></div>").addClass("bodyBox");
+			// 	var headerBox = $("<div></div>").addClass("headerBox");
+			// 	var imgShow = $("<img>").attr("src","${APP_PATH}/"+item.photoUrl).addClass("tupian");
+			// 	var downBtn = $("<a></a>").addClass("btn btn-sm photo_down_btn btn-primary")
+			// 					.append($("<span></span>").addClass("glyphicon glyphicon-download-alt")).append("下载").attr("href","${APP_PATH}/photoDownload?fileName="+item.photoUrl);
+			// 		//为阅读按钮添加一个自定义的属性,来表示当前事件id
+			// 		downBtn.attr("photo_down_id",item.photoId);
+			// 	var delBtn = $("<button></button> ").addClass(
+			// 			"btn btn-danger btn-sm photo_delete_btn").append(
+			// 			$("<span></span>")
+			// 					.addClass("glyphicon glyphicon-trash")).append(
+			// 			"删除");
+			// 	//为删除按钮添加一个自定义的属性来表示当前删除的事件id
+			// 	delBtn.attr("photo_del_id",item.photoId);
+
+			// 	var btnTd = $("<td></td>").append(downBtn).append(" ").append(delBtn);
+			// 	bodyBox.append(imgShow);
+			// 	headerBox.append(btnTd);
+			// 	cardBox.append(bodyBox).append(headerBox);
+			// 	rowPhoto.append(cardBox);
+			// 	if(sum==6 || index == photos.length-1){console.log("sum="+sum);
+			// 		sum = 0;
+			// 		var temp = rowPhoto.clone();
+			// 		$("#photo_table").append(temp);
+			// 		rowPhoto.empty();
+			// 	}				
+			// });
+			// $("#photo_table tbody").empty();
+			// var photos = result.extend.page.list;
+			// $.each(photos, function(index, item) {
+			// 	var photoTimeTd = $("<td></td>").append(item.photoTime);
+			// 	var photoTypeTd = $("<td></td>").append(item.photoType);
+			// 	var photoFileTd = $("<td></td>").append($("<img>").attr("src","${APP_PATH}/"+item.photoUrl).addClass("tupian"));
+			// 	var downBtn = $("<a></a>").addClass("btn btn-sm photo_down_btn btn-primary")
+			// 					.append($("<span></span>").addClass("glyphicon glyphicon-download-alt")).append("下载").attr("href","${APP_PATH}/photoDownload?fileName="+item.photoUrl);
+			// 		//为阅读按钮添加一个自定义的属性,来表示当前事件id
+			// 		downBtn.attr("photo_down_id",item.photoId);
+			// 	var delBtn = $("<button></button> ").addClass(
+			// 			"btn btn-danger btn-sm photo_delete_btn").append(
+			// 			$("<span></span>")
+			// 					.addClass("glyphicon glyphicon-trash")).append(
+			// 			"删除");
+			// 	//为删除按钮添加一个自定义的属性来表示当前删除的事件id
+			// 	delBtn.attr("photo_del_id",item.photoId);
+
+			// 	var btnTd = $("<td></td>").append(downBtn).append(" ").append(delBtn);
+			// 	//append方法执行完成后还是返回原来的元素
+			// 	$("<tr></tr>").append(photoTimeTd).append(photoTypeTd).append(photoFileTd).append(btnTd).appendTo("#photo_table tbody");
+			// });
 		}
 		
 		//查询所有照片
